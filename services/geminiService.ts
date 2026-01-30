@@ -2,9 +2,9 @@ import Groq from "groq-sdk";
 import { SYSTEM_PROMPT, Message, GlobalState, FinancialPlan, ProcessConfig, Roadmap } from "../types";
 
 // --- INICIALIZAÇÃO SEGURA (LAZY LOAD) ---
-// Não iniciamos o Groq aqui fora para evitar CRASH se a chave faltar.
 const getGroqClient = () => {
-  const apiKey = process.env.VITE_GROQ_API_KEY;
+  // FIX: Alterado de process.env para import.meta.env
+  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
   
   if (!apiKey || apiKey.includes("undefined")) {
     console.error("ERRO CRÍTICO: Chave API do Groq não encontrada no Vercel.");
