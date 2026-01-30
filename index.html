@@ -5,24 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Imigra.AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+            fontFamily: {
+              sans: ['"Open Sans"', 'sans-serif'],
+            },
             colors: {
-              primary: '#0F172A',
-              accent: '#2563EB',
-              background: '#F8FAFC',
+              primary: '#3498DB',
+              secondary: '#95A5A6',
+              background: '#F7F7F7',
+              surface: '#FFFFFF',
+              error: '#E74C3C',
+              success: '#2ECC71',
             },
           },
         },
       }
     </script>
-    <style>body { background-color: #F8FAFC; }</style>
-  </head>
+    <script>
+      // Polyfill process.env para evitar ReferenceError no navegador
+      // Isso previne a tela branca caso o bundler não substitua a variável
+      if (typeof process === 'undefined') {
+        window.process = { env: {} };
+      }
+    </script>
+    <style>
+      body {
+        background-color: #F7F7F7;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^6.22.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "pdfjs-dist": "https://esm.sh/pdfjs-dist@3.11.174",
+    "pdfjs-dist/": "https://esm.sh/pdfjs-dist@3.11.174/"
+  }
+}
+</script>
+</head>
   <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
