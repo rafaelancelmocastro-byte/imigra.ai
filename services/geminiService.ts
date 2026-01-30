@@ -1,15 +1,24 @@
 import Groq from "groq-sdk";
 import { SYSTEM_PROMPT, Message, GlobalState, FinancialPlan, ProcessConfig, Roadmap } from "../types";
 
-// Inicializa o Groq usando a chave definida no vite.config.ts
-const groq = new Groq({ 
-    apiKey: process.env.VITE_GROQ_API_KEY, 
-    dangerouslyAllowBrowser: true 
-});
+// --- INICIALIZAÇÃO SEGURA (LAZY LOAD) ---
+// Não iniciamos o Groq aqui fora para evitar CRASH se a chave faltar.
+const getGroqClient = () => {
+  const apiKey = process.env.VITE_GROQ_API_KEY;
+  
+  if (!apiKey || apiKey.includes("undefined")) {
+    console.error("ERRO CRÍTICO: Chave API do Groq não encontrada no Vercel.");
+    return null;
+  }
 
-// Modelos do Groq
+  return new Groq({ 
+    apiKey: apiKey, 
+    dangerouslyAllowBrowser: true 
+  });
+};
+
 const MODEL_FAST = "llama-3.3-70b-versatile"; 
-const MODEL_VISION = "llama-3.2-11b-vision-preview"; 
+const MODEL_VISION = "llama-3.2-11b-vision-preview";
 
 export const sendMessageToGemini = async (
   history: Message[],
@@ -19,7 +28,13 @@ export const sendMessageToGemini = async (
   hiddenSystemTrigger?: string
 ): Promise<string> => {
   try {
-    // 1. Prepara o System Prompt com Contexto do Usuário
+    const groq = getGroqClient();
+    
+    if (!groq) {
+      return "⚠️ ERRO DE CONFIGURAÇÃO: A Chave API (VITE_GROQ_API_KEY) não está configurada no Vercel. Adicione a chave nas Configurações do Projeto > Environment Variables.";
+    }
+
+    // 1. Monta o Prompt de Sistema com Contexto
     let systemInstruction = SYSTEM_PROMPT;
     
     if (globalState && globalState.active_process_id) {
@@ -40,25 +55,21 @@ export const sendMessageToGemini = async (
         }
     }
 
-    // 2. Converte histórico para formato do Groq
+    // 2. Converte histórico
     const messages: any[] = [
         { role: "system", content: systemInstruction }
     ];
 
-    // Adiciona histórico anterior
     history.forEach(msg => {
         messages.push({ role: msg.role === 'model' ? 'assistant' : 'user', content: msg.content });
     });
 
-    // Adiciona Trigger Oculto (Cold Start) se houver
     if (hiddenSystemTrigger) {
         messages.push({ role: "system", content: `[SYSTEM TRIGGER: ${hiddenSystemTrigger}]` });
     }
 
-    // Adiciona a Nova Mensagem do Usuário
     if (newMessage || attachments.length > 0) {
         if (attachments.length > 0) {
-            // Suporte a Visão (Multimodal)
             const content = [
                 { type: "text", text: newMessage || "Analise esta imagem." },
                 { 
@@ -72,7 +83,7 @@ export const sendMessageToGemini = async (
         }
     }
 
-    // 3. Chamada à API
+    // 3. Chamada API
     const completion = await groq.chat.completions.create({
         messages: messages,
         model: attachments.length > 0 ? MODEL_VISION : MODEL_FAST,
@@ -81,16 +92,19 @@ export const sendMessageToGemini = async (
     });
 
     return completion.choices[0]?.message?.content || "Erro ao processar resposta.";
-  } catch (error) {
+  } catch (error: any) {
     console.error("Groq API Error:", error);
-    return "Ocorreu um erro ao conectar com o Imigra.AI (Groq). Verifique sua chave API.";
+    return `Ocorreu um erro ao conectar com o Imigra.AI: ${error.message || "Erro desconhecido"}`;
   }
 };
 
-// --- FUNÇÕES AUXILIARES (Refatoradas para Groq) ---
+// --- FUNÇÕES AUXILIARES ---
 
 export const analyzeDocumentImg = async (base64Data: string, mimeType: string, docType: string): Promise<string> => {
    try {
+    const groq = getGroqClient();
+    if (!groq) return "Erro: Chave API não configurada.";
+
     const cleanData = base64Data.split(',')[1] || base64Data;
     
     const completion = await groq.chat.completions.create({
@@ -99,7 +113,7 @@ export const analyzeDocumentImg = async (base64Data: string, mimeType: string, d
             {
                 role: "user",
                 content: [
-                    { type: "text", text: `Analise este documento: ${docType}. 1. Confirme o tipo. 2. Extraia datas/nomes. 3. Valide legibilidade. Responda em Markdown.` },
+                    { type: "text", text: `Analise este documento: ${docType}. 1. Confirme o tipo. 2. Extraia datas e nomes. 3. Valide legibilidade. Responda em Markdown.` },
                     { type: "image_url", image_url: { url: `data:${mimeType};base64,${cleanData}` } }
                 ]
             }
@@ -114,10 +128,13 @@ export const analyzeDocumentImg = async (base64Data: string, mimeType: string, d
 
 export const generateQuizFromContent = async (content: string, language: string = 'Português'): Promise<any> => {
   try {
+    const groq = getGroqClient();
+    if (!groq) return null;
+
     const prompt = `
       Atue como Professor Sênior.
       TEXTO BASE: "${content.substring(0, 15000)}..."
-      TAREFA: Crie um Quiz de 5 questões difíceis baseadas no texto.
+      TAREFA: Crie um Quiz de 5 questões difíceis.
       SAÍDA: JSON puro com array "questions" (id, question, options, correctAnswerIndex, explanation).
       IDIOMA: ${language}.
     `;
@@ -131,12 +148,16 @@ export const generateQuizFromContent = async (content: string, language: string 
     const text = completion.choices[0]?.message?.content || "{}";
     return JSON.parse(text);
   } catch (error) {
+    console.error("Quiz Error:", error);
     return null;
   }
 };
 
 export const generateFinancialPlan = async (country: string, visa: string, family: string, safetyRate: number): Promise<FinancialPlan | null> => {
   try {
+    const groq = getGroqClient();
+    if (!groq) return null;
+
     const prompt = `
       Atue como Planejador Financeiro.
       DADOS: ${country}, ${visa}, ${family}, Câmbio R$ ${safetyRate}.
@@ -158,6 +179,9 @@ export const generateFinancialPlan = async (country: string, visa: string, famil
 
 export const generateOnboardingConfig = async (country: string, visa: string, profession: string): Promise<any> => {
     try {
+        const groq = getGroqClient();
+        if (!groq) return null;
+
         const prompt = `
           Atue como Arquiteto de Imigração.
           USER: ${country}, ${visa}, ${profession}.
