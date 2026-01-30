@@ -3,66 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Imigra.AI - Sistema de Imigração Inteligente</title>
+    <title>Imigra.AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: {
-              sans: ['"Inter"', 'sans-serif'],
-            },
+            fontFamily: { sans: ['"Inter"', 'sans-serif'] },
             colors: {
               primary: '#0F172A',
               accent: '#2563EB',
-              secondary: '#64748B',
               background: '#F8FAFC',
-              surface: '#FFFFFF',
-              success: '#10B981',
-              warning: '#F59E0B',
-              error: '#EF4444',
             },
-            boxShadow: {
-              'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-              'glow': '0 0 20px rgba(37, 99, 235, 0.15)',
-            },
-            animation: {
-              'fade-in': 'fadeIn 0.5s ease-out',
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0', transform: 'translateY(10px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              }
-            }
           },
         },
       }
     </script>
-    <style>
-      body { background-color: #F8FAFC; color: #0F172A; }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #f1f1f1; }
-      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
-    
-    <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@^19.2.4",
-        "react-dom/client": "https://esm.sh/react-dom@^19.2.4/client",
-        "react-router-dom": "https://esm.sh/react-router-dom@^6.22.0"
-      }
-    }
-    </script>
+    <style>body { background-color: #F8FAFC; }</style>
   </head>
   <body>
     <div id="root"></div>

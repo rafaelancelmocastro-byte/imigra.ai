@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        // Mapeia a variável de ambiente para uso no código
+        // Define a variável global para o Groq usar no navegador
         'process.env.VITE_GROQ_API_KEY': JSON.stringify(env.VITE_GROQ_API_KEY)
       },
       resolve: {

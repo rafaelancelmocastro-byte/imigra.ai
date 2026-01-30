@@ -1,16 +1,15 @@
 import Groq from "groq-sdk";
 import { SYSTEM_PROMPT, Message, GlobalState, FinancialPlan, ProcessConfig, Roadmap } from "../types";
 
-// Inicializa o Groq com permissão de navegador (Client-side)
-// A chave vem do vite.config.ts define: process.env.VITE_GROQ_API_KEY
+// Inicializa o Groq usando a chave definida no vite.config.ts
 const groq = new Groq({ 
     apiKey: process.env.VITE_GROQ_API_KEY, 
     dangerouslyAllowBrowser: true 
 });
 
-// Modelos do Groq (Llama 3 é muito rápido e barato/grátis no Groq)
+// Modelos do Groq
 const MODEL_FAST = "llama-3.3-70b-versatile"; 
-const MODEL_VISION = "llama-3.2-11b-vision-preview"; // Para ver imagens
+const MODEL_VISION = "llama-3.2-11b-vision-preview"; 
 
 export const sendMessageToGemini = async (
   history: Message[],
@@ -20,7 +19,7 @@ export const sendMessageToGemini = async (
   hiddenSystemTrigger?: string
 ): Promise<string> => {
   try {
-    // 1. Monta o Prompt de Sistema com Contexto
+    // 1. Prepara o System Prompt com Contexto do Usuário
     let systemInstruction = SYSTEM_PROMPT;
     
     if (globalState && globalState.active_process_id) {
@@ -41,21 +40,22 @@ export const sendMessageToGemini = async (
         }
     }
 
-    // 2. Converte histórico para formato Groq/OpenAI
+    // 2. Converte histórico para formato do Groq
     const messages: any[] = [
         { role: "system", content: systemInstruction }
     ];
 
+    // Adiciona histórico anterior
     history.forEach(msg => {
         messages.push({ role: msg.role === 'model' ? 'assistant' : 'user', content: msg.content });
     });
 
-    // Adiciona Trigger Oculto se houver
+    // Adiciona Trigger Oculto (Cold Start) se houver
     if (hiddenSystemTrigger) {
         messages.push({ role: "system", content: `[SYSTEM TRIGGER: ${hiddenSystemTrigger}]` });
     }
 
-    // Adiciona Nova Mensagem (com imagem se houver)
+    // Adiciona a Nova Mensagem do Usuário
     if (newMessage || attachments.length > 0) {
         if (attachments.length > 0) {
             // Suporte a Visão (Multimodal)
@@ -72,7 +72,7 @@ export const sendMessageToGemini = async (
         }
     }
 
-    // 3. Chamada API Groq
+    // 3. Chamada à API
     const completion = await groq.chat.completions.create({
         messages: messages,
         model: attachments.length > 0 ? MODEL_VISION : MODEL_FAST,
@@ -99,7 +99,7 @@ export const analyzeDocumentImg = async (base64Data: string, mimeType: string, d
             {
                 role: "user",
                 content: [
-                    { type: "text", text: `Analise este documento. O usuário diz ser: ${docType}. 1. Confirme o tipo. 2. Extraia datas e nomes. 3. Valide legibilidade. Responda em Markdown.` },
+                    { type: "text", text: `Analise este documento: ${docType}. 1. Confirme o tipo. 2. Extraia datas/nomes. 3. Valide legibilidade. Responda em Markdown.` },
                     { type: "image_url", image_url: { url: `data:${mimeType};base64,${cleanData}` } }
                 ]
             }
@@ -125,13 +125,12 @@ export const generateQuizFromContent = async (content: string, language: string 
     const completion = await groq.chat.completions.create({
         model: MODEL_FAST,
         messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" } // Força JSON
+        response_format: { type: "json_object" }
     });
 
     const text = completion.choices[0]?.message?.content || "{}";
     return JSON.parse(text);
   } catch (error) {
-    console.error("Quiz Error:", error);
     return null;
   }
 };
@@ -139,7 +138,7 @@ export const generateQuizFromContent = async (content: string, language: string 
 export const generateFinancialPlan = async (country: string, visa: string, family: string, safetyRate: number): Promise<FinancialPlan | null> => {
   try {
     const prompt = `
-      Atue como Planejador Financeiro de Imigração.
+      Atue como Planejador Financeiro.
       DADOS: ${country}, ${visa}, ${family}, Câmbio R$ ${safetyRate}.
       TAREFA: Retorne JSON com custos (summary, comparison, timeline).
       Regra: Compare "Via Assessoria" ($$$) vs "Via Imigra.AI" ($0 assessoria).
