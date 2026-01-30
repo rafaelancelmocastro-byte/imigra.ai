@@ -3,7 +3,7 @@ import { SYSTEM_PROMPT, Message, GlobalState, FinancialPlan, ProcessConfig, Road
 
 // --- INICIALIZAÇÃO SEGURA (LAZY LOAD) ---
 const getGroqClient = () => {
-  // FIX: Alterado de process.env para import.meta.env
+  // CORREÇÃO: Mudamos de process.env para import.meta.env (Padrão Vite)
   const apiKey = import.meta.env.VITE_GROQ_API_KEY;
   
   if (!apiKey || apiKey.includes("undefined")) {

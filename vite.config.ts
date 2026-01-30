@@ -1,5 +1,5 @@
 import path from 'path';
-import { defineConfig } from 'vite'; // loadEnv não é mais necessário aqui para o define
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
@@ -9,14 +9,23 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
-      // FIX: Removido bloco 'define' problemático. O Vite injeta import.meta.env automaticamente.
+      // REMOVIDO: O bloco 'define' que tentava emular process.env.
+      // O Vite injeta import.meta.env automaticamente.
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
       },
       build: {
+        // Aumenta o limite para suprimir o aviso do Vercel sobre chunks grandes
         chunkSizeWarningLimit: 1600,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    pdfjs: ['pdfjs-dist']
+                }
+            }
+        }
       }
     };
 });
