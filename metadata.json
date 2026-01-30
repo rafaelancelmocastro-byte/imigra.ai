@@ -1,0 +1,8 @@
+{
+  "name": "Imigra.AI",
+  "description": "Consultor de imigração avançado para brasileiros (EUA, Canadá, Austrália, Europa).",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
