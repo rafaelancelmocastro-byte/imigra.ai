@@ -19,11 +19,10 @@
               sans: ['"Inter"', 'sans-serif'],
             },
             colors: {
-              // Paleta Enterprise (Séria e Confiável)
-              primary: '#0F172A',   // Slate-900 (Fundo Escuro / Textos Fortes)
-              accent: '#2563EB',    // Blue-600 (Ação / Botões)
-              secondary: '#64748B', // Slate-500 (Texto secundário)
-              background: '#F8FAFC', // Slate-50 (Fundo da página)
+              primary: '#0F172A',
+              accent: '#2563EB',
+              secondary: '#64748B',
+              background: '#F8FAFC',
               surface: '#FFFFFF',
               success: '#10B981',
               warning: '#F59E0B',
@@ -54,6 +53,16 @@
       ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
+    
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.4",
+        "react-dom/client": "https://esm.sh/react-dom@^19.2.4/client",
+        "react-router-dom": "https://esm.sh/react-router-dom@^6.22.0"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

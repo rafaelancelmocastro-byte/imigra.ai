@@ -2,12 +2,13 @@ import Groq from "groq-sdk";
 import { SYSTEM_PROMPT, Message, GlobalState, FinancialPlan, ProcessConfig, Roadmap } from "../types";
 
 // Inicializa o Groq com permissão de navegador (Client-side)
+// A chave vem do vite.config.ts define: process.env.VITE_GROQ_API_KEY
 const groq = new Groq({ 
     apiKey: process.env.VITE_GROQ_API_KEY, 
     dangerouslyAllowBrowser: true 
 });
 
-// Modelos do Groq
+// Modelos do Groq (Llama 3 é muito rápido e barato/grátis no Groq)
 const MODEL_FAST = "llama-3.3-70b-versatile"; 
 const MODEL_VISION = "llama-3.2-11b-vision-preview"; // Para ver imagens
 
